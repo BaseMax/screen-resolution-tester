@@ -2,6 +2,12 @@
 
 A comprehensive diagnostic tool that displays real-time information about your screen, viewport, and browser capabilities.
 
+![Screen Resolution Tester](preview/1.png)
+
+![Screen Resolution Tester](preview/2.png)
+
+![Screen Resolution Tester](preview/3.png)
+
 ## Features
 
 - 📐 **Screen Resolution**: Display actual screen dimensions and available screen space
