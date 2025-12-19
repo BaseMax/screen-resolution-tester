@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Resolution Tester - Diagnostic Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .diagnostic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .diagnostic-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .diagnostic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .diagnostic-card h2 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .metric-value {
+            font-family: 'Courier New', monospace;
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .media-queries {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .media-queries h2 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .query-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+            transition: background 0.2s;
+        }
+
+        .query-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .query-status.active {
+            background: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .query-status.inactive {
+            background: #e0e0e0;
+        }
+
+        .query-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .update-notice {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .diagnostic-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            /* Additional dark mode support could be added here */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Screen Resolution Diagnostic Tool</h1>
+        
+        <div class="diagnostic-grid">
+            <!-- Screen Resolution Card -->
+            <div class="diagnostic-card">
+                <h2>📐 Screen Resolution</h2>
+                <div class="metric">
+                    <span class="metric-label">Width:</span>
+                    <span class="metric-value" id="screen-width">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Height:</span>
+                    <span class="metric-value" id="screen-height">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Available Width:</span>
+                    <span class="metric-value" id="screen-avail-width">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Available Height:</span>
+                    <span class="metric-value" id="screen-avail-height">-</span>
+                </div>
+            </div>
+
+            <!-- Device Pixel Ratio Card -->
+            <div class="diagnostic-card">
+                <h2>📱 Device Pixel Ratio</h2>
+                <div class="metric">
+                    <span class="metric-label">Pixel Ratio:</span>
+                    <span class="metric-value" id="pixel-ratio">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Physical Pixels (W):</span>
+                    <span class="metric-value" id="physical-width">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Physical Pixels (H):</span>
+                    <span class="metric-value" id="physical-height">-</span>
+                </div>
+            </div>
+
+            <!-- Viewport Size Card -->
+            <div class="diagnostic-card">
+                <h2>🪟 Viewport Size</h2>
+                <div class="metric">
+                    <span class="metric-label">Inner Width:</span>
+                    <span class="metric-value" id="viewport-width">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Inner Height:</span>
+                    <span class="metric-value" id="viewport-height">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Outer Width:</span>
+                    <span class="metric-value" id="viewport-outer-width">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Outer Height:</span>
+                    <span class="metric-value" id="viewport-outer-height">-</span>
+                </div>
+            </div>
+
+            <!-- Browser Info Card -->
+            <div class="diagnostic-card">
+                <h2>🌐 Browser Info</h2>
+                <div class="metric">
+                    <span class="metric-label">Color Depth:</span>
+                    <span class="metric-value" id="color-depth">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Pixel Depth:</span>
+                    <span class="metric-value" id="pixel-depth">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Orientation:</span>
+                    <span class="metric-value" id="orientation">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Queries Card -->
+        <div class="media-queries">
+            <h2>🎯 CSS Media Query Matches</h2>
+            <div id="media-queries-container">
+                <!-- Media queries will be inserted here dynamically -->
+            </div>
+        </div>
+
+        <div class="update-notice">
+            ⚡ Updates automatically when window is resized or orientation changes
+        </div>
+    </div>
+
+    <script>
+        // Media queries to test
+        const mediaQueries = [
+            // Screen width breakpoints
+            { query: '(max-width: 480px)', label: 'Mobile (max-width: 480px)' },
+            { query: '(min-width: 481px) and (max-width: 768px)', label: 'Tablet (481px - 768px)' },
+            { query: '(min-width: 769px) and (max-width: 1024px)', label: 'Small Desktop (769px - 1024px)' },
+            { query: '(min-width: 1025px)', label: 'Desktop (min-width: 1025px)' },
+            
+            // Orientation
+            { query: '(orientation: portrait)', label: 'Portrait Orientation' },
+            { query: '(orientation: landscape)', label: 'Landscape Orientation' },
+            
+            // Pixel ratio
+            { query: '(-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi)', label: 'Retina Display (2x)' },
+            { query: '(-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi)', label: 'High DPI Display (3x)' },
+            
+            // Color scheme
+            { query: '(prefers-color-scheme: dark)', label: 'Dark Mode Preference' },
+            { query: '(prefers-color-scheme: light)', label: 'Light Mode Preference' },
+            
+            // Hover capability
+            { query: '(hover: hover)', label: 'Hover Capable Device' },
+            { query: '(hover: none)', label: 'Touch-only Device' },
+            
+            // Pointer
+            { query: '(pointer: fine)', label: 'Precise Pointer (Mouse)' },
+            { query: '(pointer: coarse)', label: 'Coarse Pointer (Touch)' },
+            
+            // Reduced motion
+            { query: '(prefers-reduced-motion: reduce)', label: 'Reduced Motion Preference' },
+            { query: '(prefers-reduced-motion: no-preference)', label: 'No Motion Reduction' },
+        ];
+
+        // Function to update all diagnostics
+        function updateDiagnostics() {
+            // Screen Resolution
+            document.getElementById('screen-width').textContent = `${screen.width}px`;
+            document.getElementById('screen-height').textContent = `${screen.height}px`;
+            document.getElementById('screen-avail-width').textContent = `${screen.availWidth}px`;
+            document.getElementById('screen-avail-height').textContent = `${screen.availHeight}px`;
+
+            // Device Pixel Ratio
+            const dpr = window.devicePixelRatio || 1;
+            document.getElementById('pixel-ratio').textContent = dpr.toFixed(2);
+            document.getElementById('physical-width').textContent = `${Math.round(screen.width * dpr)}px`;
+            document.getElementById('physical-height').textContent = `${Math.round(screen.height * dpr)}px`;
+
+            // Viewport Size
+            document.getElementById('viewport-width').textContent = `${window.innerWidth}px`;
+            document.getElementById('viewport-height').textContent = `${window.innerHeight}px`;
+            document.getElementById('viewport-outer-width').textContent = `${window.outerWidth}px`;
+            document.getElementById('viewport-outer-height').textContent = `${window.outerHeight}px`;
+
+            // Browser Info
+            document.getElementById('color-depth').textContent = `${screen.colorDepth} bits`;
+            document.getElementById('pixel-depth').textContent = `${screen.pixelDepth} bits`;
+            
+            // Orientation
+            const orientation = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+            const orientationAngle = screen.orientation ? screen.orientation.angle : 'N/A';
+            document.getElementById('orientation').textContent = `${orientation} (${orientationAngle}°)`;
+
+            // Update Media Queries
+            updateMediaQueries();
+        }
+
+        // Function to update media query matches
+        function updateMediaQueries() {
+            const container = document.getElementById('media-queries-container');
+            container.innerHTML = '';
+
+            mediaQueries.forEach(({ query, label }) => {
+                const matches = window.matchMedia(query).matches;
+                
+                const queryItem = document.createElement('div');
+                queryItem.className = 'query-item';
+                
+                const status = document.createElement('div');
+                status.className = `query-status ${matches ? 'active' : 'inactive'}`;
+                
+                const text = document.createElement('div');
+                text.className = 'query-text';
+                text.textContent = `${label}: ${query}`;
+                
+                queryItem.appendChild(status);
+                queryItem.appendChild(text);
+                container.appendChild(queryItem);
+            });
+        }
+
+        // Initialize diagnostics on page load
+        updateDiagnostics();
+
+        // Update diagnostics on window resize
+        window.addEventListener('resize', updateDiagnostics);
+
+        // Update diagnostics on orientation change
+        window.addEventListener('orientationchange', updateDiagnostics);
+
+        // Listen for media query changes and update in real-time
+        mediaQueries.forEach(({ query }) => {
+            const mql = window.matchMedia(query);
+            if (mql.addEventListener) {
+                mql.addEventListener('change', updateMediaQueries);
+            } else {
+                // Fallback for older browsers
+                mql.addListener(updateMediaQueries);
+            }
+        });
+
+        // Update pixel ratio changes (when zooming)
+        if (window.matchMedia) {
+            const updatePixelRatio = () => {
+                const mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
+                const media = matchMedia(mqString);
+                media.addEventListener('change', updateDiagnostics, { once: true });
+            };
+            updatePixelRatio();
+        }
+    </script>
+</body>
+</html>
