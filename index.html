@@ -311,7 +311,14 @@
             
             // Orientation
             const orientation = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
-            const orientationAngle = screen.orientation ? screen.orientation.angle : 'N/A';
+            let orientationAngle = 'N/A';
+            try {
+                if (screen.orientation && typeof screen.orientation.angle !== 'undefined') {
+                    orientationAngle = screen.orientation.angle;
+                }
+            } catch (e) {
+                // screen.orientation not supported in this browser
+            }
             document.getElementById('orientation').textContent = `${orientation} (${orientationAngle}°)`;
 
             // Update Media Queries
@@ -354,12 +361,7 @@
         // Listen for media query changes and update in real-time
         mediaQueries.forEach(({ query }) => {
             const mql = window.matchMedia(query);
-            if (mql.addEventListener) {
-                mql.addEventListener('change', updateMediaQueries);
-            } else {
-                // Fallback for older browsers
-                mql.addListener(updateMediaQueries);
-            }
+            mql.addEventListener('change', updateMediaQueries);
         });
 
         // Update pixel ratio changes (when zooming)
@@ -367,7 +369,10 @@
             const updatePixelRatio = () => {
                 const mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
                 const media = matchMedia(mqString);
-                media.addEventListener('change', updateDiagnostics, { once: true });
+                media.addEventListener('change', () => {
+                    updateDiagnostics();
+                    updatePixelRatio(); // Re-register for future changes
+                }, { once: true });
             };
             updatePixelRatio();
         }
